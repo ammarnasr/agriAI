@@ -74,8 +74,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-
-
----
-
-Remember to replace placeholder text with specific information about your project. Each section is designed to guide potential users and contributors through using and enhancing your project.
