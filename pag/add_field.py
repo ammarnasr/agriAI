@@ -73,27 +73,6 @@ def display_map_and_drawing_controls(m, center_start):
         folium.LayerControl().add_to(new_map)
         st_folium(new_map, center=edges_center, zoom=zoom_start, key="drawn", width=800)
         return True
-    # with st.empty():
-    #     if st.session_state['active_drawing'] is None:
-            
-    #         sat_basemap = utils.basemaps['Google Satellite']
-    #         sat_basemap.add_to(m)
-    #         folium.LayerControl().add_to(m)
-    #         output = st_folium(m, center=center_start, zoom=zoom_start, key="new", width=800)
-    #         active_drawing = output['last_active_drawing']
-    #         st.session_state['active_drawing'] = active_drawing
-    #     else:
-    #         st.info("Drawing Captured! Click on the button below to Clear Drawing and Draw Again")
-    # if st.session_state['active_drawing'] is not None:
-    #     active_drawing = st.session_state['active_drawing']
-    #     new_map = folium.Map(location=center_start, zoom_start=8)
-    #     edges = [[i[1], i[0]] for i in active_drawing['geometry']['coordinates'][0]]
-    #     edges_center = [sum([i[0] for i in edges]) / len(edges), sum([i[1] for i in edges]) / len(edges)]
-    #     folium.Polygon(edges, color='green', fill=True, fill_color='green', fill_opacity=0.6, name="New Field").add_to(new_map)
-    #     sat_basemap = utils.basemaps['Google Satellite']
-    #     sat_basemap.add_to(new_map)
-    #     folium.LayerControl().add_to(new_map)
-    #     st_folium(new_map, center=edges_center, zoom=zoom_start, key="drawn", width=800)
 
 def handle_user_actions(active_drawing, current_user, intersects, within_area):
     draw_again_col, add_field_info_col = st.columns([1, 1])
@@ -188,7 +167,7 @@ def check_polygon_area_within_range(active_drawing, min_area_km2=1, max_area_km2
 
 def add_drawing():
     initialize_active_drawing_state()
-    # current_user = greeting("Drag and Zoom and draw your fields on the map, make sure to name them uniquely")
+    current_user = greeting("Drag and Zoom and draw your fields on the map, make sure to name them uniquely")
     current_user = st.session_state['current_user']
     display_existing_fields(current_user)
 
@@ -207,11 +186,7 @@ def add_drawing():
         intersects = check_intersection_with_existing_fields(st.session_state['active_drawing'], current_user)
         within_area = check_polygon_area_within_range(st.session_state['active_drawing'])
         handle_user_actions(st.session_state['active_drawing'], current_user, intersects, within_area)
-    # intersects = check_intersection_with_existing_fields(st.session_state['active_drawing'], current_user)
-    # within_area = check_polygon_area_within_range(st.session_state['active_drawing'])
     
-    # handle_user_actions(st.session_state['active_drawing'], current_user, intersects, within_area)
-
 
 if __name__ == '__main__':
     check_authentication()

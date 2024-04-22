@@ -52,7 +52,6 @@ def edit_fields():
     sat_basemap = utils.basemaps['Google Satellite']
     sat_basemap.add_to(fields_map)
     folium.LayerControl().add_to(fields_map)
-    # output = st_folium(fields_map, key="edit_map", height=300, width=600)
     folium_static(fields_map, height=300, width=600)
     
     with st.expander("Existing Fields List", expanded=False):
@@ -95,26 +94,6 @@ def edit_fields():
                 # st.rerun()
                 st.success("Field Information Updated Successfully!")
                 st.info("Please Select View above to see the updated field information")
-
-    # last_active_drawing = output['last_active_drawing']
-    # if last_active_drawing is not None:
-    #     st.session_state['active_drawing'] = last_active_drawing
-    #     props = last_active_drawing['properties']
-    #     st.write(f"Current Properties:")
-    #     st.write(props)
-    # field_crop = st.text_input("Field Crop*", help="Enter the crop type", key="field_crop", value='Unknown')
-    # field_type = st.selectbox("Field Type*", options=["Rainfed", "Irrigated", "Unknown"], key="field_type", help="Select the field type", index=2)
-    # submit = st.button("Submit", key="submitProperties", help="Click to Submit Field Information", type="primary",
-    #                     use_container_width=True, disabled=last_active_drawing is None or field_crop == "" or field_type == "")
-    # if submit:
-    #     field_name = props['name']
-    #     gdf = add_properties(gdf, "crop", field_crop, field_name)
-    #     gdf = add_properties(gdf, "type", field_type, field_name)
-    #     gdf.to_parquet(f"fields_{current_user}.parquet")
-    #     st.success("Field Information Submitted Successfully!")
-    #     st.session_state['active_drawing'] = None
-    #     st.rerun()
-
 
 
 if __name__ == '__main__':
