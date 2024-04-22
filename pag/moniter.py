@@ -546,9 +546,9 @@ def monitor_fields():
             st.write("NDVI: Normalized Difference Vegetation Index, Mainly used to monitor the health of vegetation")
             st.write("LAI: Leaf Area Index, Mainly used to monitor the productivity of vegetation")
             st.write("CAB: Chlorophyll Absorption in the Blue band, Mainly used to monitor the chlorophyll content in vegetation")
-            st.write("NDMI: Normalized Difference Moisture Index, Mainly used to monitor the moisture content in vegetation")
+            # st.write("NDMI: Normalized Difference Moisture Index, Mainly used to monitor the moisture content in vegetation")
         st.success("More metrics and analysis features will be added soon")
-        metric = st.radio("Select Metric to Monitor", ["NDVI", "LAI", "CAB", "NDMI"], key="metric", index=0, help="Select the metric to monitor")
+        metric = st.radio("Select Metric to Monitor", ["NDVI", "LAI", "CAB"], key="metric", index=0, help="Select the metric to monitor")
         st.write(f"Monitoring {metric} for {field_name}")
 
         track(metric, field_name, gdf, current_user)
