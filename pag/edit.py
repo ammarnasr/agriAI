@@ -17,6 +17,11 @@ def add_properties(df, col_name, value, field_name):
     return df
 
 def select_field(gdf):
+    st.markdown("""
+            <style>
+            .stSelectbox > div > div {cursor: pointer;}
+            </style>
+            """, unsafe_allow_html=True)
     names = gdf['name'].tolist()
     names.append("Select Field")
     field_name = st.selectbox("Select Field", options=names, key="field_name_edit", help="Select the field to edit", index=len(names)-1)

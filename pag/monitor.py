@@ -29,6 +29,11 @@ config.sh_client_secret  = 'KvbQMKZB85ZWEgWuxqiWIVEvTAQEfoF9'
 
 
 def select_field(gdf):
+    st.markdown("""
+            <style>
+            .stSelectbox > div > div {cursor: pointer;}
+            </style>
+            """, unsafe_allow_html=True)
     names = gdf['name'].tolist()
     names.append("Select Field")
     field_name = st.selectbox("Select Field", options=names, key="field_name_monitor", help="Select the field to edit", index=len(names)-1)
@@ -119,6 +124,11 @@ def track(metric, field_name, src_df, client_name):
 
     # Display the dropdown menu
     if len(dates) > 0:
+        st.markdown("""
+            <style>
+            .stSelectbox > div > div {cursor: pointer;}
+            </style>
+            """, unsafe_allow_html=True)
         date = st.selectbox('Select Observation Date: ', dates, index=len(dates)-1, key=f'Select Date Dropdown Menu - {metric}')
         if date != -1:
             st.write('You selected:', date)
