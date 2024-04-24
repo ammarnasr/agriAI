@@ -13,7 +13,7 @@ license: mit
 # agriAI
 
 Welcome to agriAI, an advanced field monitoring application designed to help farmers and agricultural researchers monitor and manage their fields more effectively. This project utilizes cutting-edge technologies to provide real-time insights into crop health, soil conditions, and environmental factors.
- you can access the app here https://huggingface.co/spaces/A-O98/Field-Monitoring
+ you can access the app here https://huggingface.co/spaces/DeepFundingAgriAI/Field-Monitoring
 ## Features
 
 - **Real-Time Monitoring**: Track field conditions in real time to make informed decisions quickly.
