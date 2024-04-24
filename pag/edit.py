@@ -162,6 +162,7 @@ def edit_fields():
                     time.sleep(0.3)
                     st.rerun()
 
+
 if __name__ == '__main__':
 
     edit_fields()
