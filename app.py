@@ -3,8 +3,8 @@ import streamlit as st
 import authentication 
 import streamlit as st
 from pag import add_field, edit, monitor
- 
-# from pages import add_field, edit, moniter
+
+
 def authenticate_user():
     st.title("Welcome to :orange[Field Monitoring App]")
     st.markdown("""
@@ -28,22 +28,22 @@ def authenticate_user():
 def main():
     
     if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
+        st.session_state.authenticated = False 
 
     if st.session_state.authenticated:
-        st.sidebar.title(":blue[Field Management Options]")
+        st.sidebar.title("Navigation")
         options = st.sidebar.radio("Choose an option:", 
-                                   ("Add Field", "Edit Fields/Add Field Info", "Monitor"))
+                                   ("Add Field", "Manage Fields", "Monitor Fields"))
         
         if options == "Add Field":
             st.title("Welcome to :orange[Field Monitoring App]")
 
             add_field.add_drawing()
             
-        elif options == "Edit Fields/Add Field Info":
+        elif options == "Manage Fields":
             st.title("Welcome to :orange[Field Monitoring App]")
             edit.edit_fields()
-        elif options == "Monitor":
+        elif options == "Monitor Fields":
             st.title("Welcome to :orange[Field Monitoring App]")
             monitor.monitor_fields()
     else:

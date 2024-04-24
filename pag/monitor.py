@@ -78,12 +78,6 @@ def get_cuarted_df_for_field(df, field, date, metric, clientName):
     return curated_df
 
 
-
-
-
-
-
-
 def get_cuarted_df_for_field(df, field, date, metric, clientName):
     curated_date_path =  utils.get_curated_location_img_path(clientName, metric, date, field)
     if curated_date_path is not None:
@@ -109,31 +103,6 @@ def track(metric, field_name, src_df, client_name):
     else:
         date = st.session_state['date']
 
-    # Give the user the option to select year, start date and end date
-    # with st.expander('Select Year, Start Date and End Date'):
-    #     # Get the year
-    #     years = [f'20{i}' for i in range(22, 25)]
-    #     year = st.selectbox('Select Year: ', years, index=len(years)-2, key=f'Select Year Dropdown Menu - {metric}')
-        
-    #     # Set the min, max and default values for start and end dates
-    #     min_val = f'{year}-01-01'
-    #     max_val = f'{year}-12-31'
-    #     default_val = f'{year}-11-01'
-    #     min_val = datetime.strptime(min_val, '%Y-%m-%d')
-    #     max_val = datetime.strptime(max_val, '%Y-%m-%d')
-    #     default_val = datetime.strptime(default_val, '%Y-%m-%d')
-
-    #     # Get the start and end dates
-    #     start_date = st.date_input('Start Date', value=default_val, min_value=min_val, max_value=max_val, key=f'Start Date - {metric}')
-    #     end_date = st.date_input('End Date', value=max_val, min_value=min_val, max_value=max_val, key=f'End Date - {metric}')
-
-
-    # Get the dates with available data for that field when the user clicks the button
-    # get_dates_button = st.button(f'Get Dates for Field {field_name} (Field ID: {field_name}) in {year} (from {start_date} to {end_date})',
-    #                                 key=f'Get Dates Button - {metric}',
-    #                                 help='Click to get the dates with available data for the selected field',
-    #                                 use_container_width=True, type='primary')
-    # if get_dates_button:
     if True:
         start_date = '2024-01-01'
         today = datetime.today()
@@ -142,7 +111,6 @@ def track(metric, field_name, src_df, client_name):
 
         dates = get_and_cache_available_dates(src_df, field_name, year, start_date, end_date)
         # Add None to the end of the list to be used as a default value
-        # dates.append(-1)
         #sort the dates from earliest to today
         dates = sorted(dates)
 
@@ -260,264 +228,7 @@ def track(metric, field_name, src_df, client_name):
 
     else:
         st.info('Please Select A Field and A Date')
-    
-
-    # st.markdown('---')
-    # st.header('Show Historic Averages')
-
-
-    # #Let the user select the year, start date and end date
-    # with st.expander('Select Year, Start Date and End Date'):
-    #     # Get the year
-    #     years = [f'20{i}' for i in range(22, 25)]
-    #     year = st.selectbox('Select Year: ', years, index=len(years)-2, key=f'Select Year Dropdown Menu - {metric}- Historic Averages')
-        
-    #     # Set the start and end dates to the first and last dates of the year
-    #     start_date = f'{year}-01-01'
-    #     end_date = f'{year}-12-31'
-
-    # # Get the dates for historic averages
-    # historic_avarages_dates_for_field = get_and_cache_available_dates(src_df, field_name, year, start_date, end_date)
-
-    # # Convert the dates to datetime objects and sort them ascendingly then convert them back to strings
-    # historic_avarages_dates_for_field = [datetime.strptime(date, '%Y-%m-%d') for date in historic_avarages_dates_for_field]
-    # historic_avarages_dates_for_field.sort()
-    # historic_avarages_dates_for_field = [datetime.strftime(date, '%Y-%m-%d') for date in historic_avarages_dates_for_field]
-
-    # # Get the number of dates
-    # num_historic_dates = len(historic_avarages_dates_for_field)
-    # st.write(f' Found {num_historic_dates} dates for field {field_name} in {year} (from {start_date} to {end_date})')
-
-    # # Display the historic averages when the user clicks the button
-    # display_historic_avgs_button = st.button(f'Display Historic Averages for Field {field_name} (Field ID: {field_name}) in {year} (from {start_date} to {end_date})',
-    #                                             key=f'Display Historic Averages Button - {metric}',
-    #                                             help='Click to display the historic averages for the selected field',
-    #                                             use_container_width=True, type='primary')
-    
-    # # If the button is clicked, display the historic averages
-    # if display_historic_avgs_button:
-
-    #     #Initlize the historic averages cache dir and file path
-    #     historic_avarages_cache_dir = './historic_avarages_cache'
-    #     historic_avarages_cache_path = f'{historic_avarages_cache_dir}/historic_avarages_cache.joblib'
-    #     historic_avarages_cache_clp_path = f'{historic_avarages_cache_dir}/historic_avarages_cache_clp.joblib'
-
-    #     # Load the historic averages cache if it exists, else create it
-    #     if os.path.exists(historic_avarages_cache_path):
-    #         historic_avarages_cache = joblib.load(historic_avarages_cache_path)
-    #     else:
-    #         os.makedirs(historic_avarages_cache_dir, exist_ok=True)
-    #         joblib.dump({}, historic_avarages_cache_path)
-    #         historic_avarages_cache = joblib.load(historic_avarages_cache_path)
-    #     if os.path.exists(historic_avarages_cache_clp_path):
-    #         historic_avarages_cache_clp = joblib.load(historic_avarages_cache_clp_path)
-    #     else:
-    #         os.makedirs(historic_avarages_cache_dir, exist_ok=True)
-    #         joblib.dump({}, historic_avarages_cache_clp_path)
-    #         historic_avarages_cache_clp = joblib.load(historic_avarages_cache_clp_path)
-
-    #     found_in_cache = False
-    #     if client_name not in historic_avarages_cache:
-    #         historic_avarages_cache[client_name] = {}
-    #     if metric not in historic_avarages_cache[client_name]:
-    #         historic_avarages_cache[client_name][metric] = {}
-    #     if field_name not in historic_avarages_cache[client_name][metric]:
-    #         historic_avarages_cache[client_name][metric][field_name] = {}
-    #     if year not in historic_avarages_cache[client_name][metric][field_name]:
-    #         historic_avarages_cache[client_name][metric][field_name][year] = {}
-    #     if len(historic_avarages_cache[client_name][metric][field_name][year]) > 0:
-    #         found_in_cache = True
-
-
-    #     #Check if the field and year are in the cache_clp for the current metric and client
-    #     found_in_cache_clp = False
-    #     if client_name not in historic_avarages_cache_clp:
-    #         historic_avarages_cache_clp[client_name] = {}
-    #     if 'CLP' not in historic_avarages_cache_clp[client_name]:
-    #         historic_avarages_cache_clp[client_name]['CLP'] = {}
-    #     if field_name not in historic_avarages_cache_clp[client_name]['CLP']:
-    #         historic_avarages_cache_clp[client_name]['CLP'][field_name] = {}
-    #     if year not in historic_avarages_cache_clp[client_name]['CLP'][field_name]:
-    #         historic_avarages_cache_clp[client_name]['CLP'][field_name][year] = {}
-    #     if len(historic_avarages_cache_clp[client_name]['CLP'][field_name][year]) > 0:
-    #         found_in_cache_clp = True
-
-
-    #     # If Found in cache, get the historic averages from the cache
-    #     if found_in_cache and found_in_cache_clp:
-    #         st.info('Found Historic Averages in Cache')
-    #         historic_avarages = historic_avarages_cache[client_name][metric][field_name][year]['historic_avarages']
-    #         historic_avarages_dates = historic_avarages_cache[client_name][metric][field_name][year]['historic_avarages_dates']
-    #         historic_avarages_clp = historic_avarages_cache_clp[client_name]['CLP'][field_name][year]['historic_avarages_clp']
-
-    #     # Else, calculate the historic averages and add them to the cache
-    #     else:
-    #         st.info('Calculating Historic Averages...')
-
-
-    #         #Empty lists for the historic averages , dates and cloud cover
-    #         historic_avarages = []
-    #         historic_avarages_dates = []
-    #         historic_avarages_clp = []
-
-    #         # Get the historic averages
-    #         dates_for_field_bar = st.progress(0)
-    #         with st.spinner('Calculating Historic Averages...'):
-    #             with st.empty():
-    #                 for i in range(num_historic_dates):
-    #                     # Get the historic average for the current date
-    #                     current_date = historic_avarages_dates_for_field[i]
-    #                     current_df = get_cuarted_df_for_field(src_df, field_name, current_date, metric, client_name)
-    #                     current_df_clp = get_cuarted_df_for_field(src_df, field_name, current_date, 'CLP', client_name)
-    #                     current_avg = current_df[f'{metric}_{current_date}'].mean()
-    #                     current_avg_clp = current_df_clp[f'CLP_{current_date}'].mean()
-    #                     # Add the historic average and date to the lists
-    #                     historic_avarages.append(current_avg)
-    #                     historic_avarages_dates.append(current_date)
-    #                     historic_avarages_clp.append(current_avg_clp)
-    #                     # Update the progress bar
-    #                     dates_for_field_bar.progress((i + 1)/(num_historic_dates))
-
-    #                     # Create a plot of the historic averages with the cloud cover as dashed line and dates as x axis (rotated 90 degrees when needed)
-    #                     fig, ax = plt.subplots(figsize=(5, 3))
-
-    #                     # Set the x axis ticks and labels
-    #                     x = historic_avarages_dates
-    #                     x_ticks = [i for i in range(len(x))]
-    #                     ax.set_xticks(x_ticks)
-                        
-    #                     #Set rotation to 90 degrees if the number of dates is greater than 10
-    #                     rot = 0 if len(x) < 10 else 90
-    #                     ax.set_xticklabels(x, rotation=rot)
-
-    #                     # Set the y axis ticks and labels
-    #                     y1 = historic_avarages
-    #                     y2 = historic_avarages_clp
-    #                     y_ticks = [i/10 for i in range(11)]
-    #                     ax.set_yticks(y_ticks)
-    #                     ax.set_yticklabels(y_ticks)
-
-    #                     # Plot the historic averages and cloud cover
-    #                     ax.plot(x_ticks, y1, label=f'{metric} Historic Averages')
-    #                     ax.plot(x_ticks, y2, '--', label='Cloud Cover')
-    #                     ax.legend()
-
-    #                     # Set the title and axis labels
-    #                     ax.set_title(f'{metric} Historic Averages for {field_name} (Field ID: {field_name}) in {year}')
-    #                     ax.set_xlabel('Date')
-    #                     ax.set_ylabel(f'{metric} Historic Averages')
-
-    #                     # Display the plot
-    #                     st.pyplot(fig, use_container_width=True)
-
-    #         # Add the historic averages to the cache
-    #         historic_avarages_cache[client_name][metric][field_name][year]['historic_avarages'] = historic_avarages
-    #         historic_avarages_cache[client_name][metric][field_name][year]['historic_avarages_dates'] = historic_avarages_dates
-    #         historic_avarages_cache_clp[client_name]['CLP'][field_name][year]['historic_avarages_clp'] = historic_avarages_clp
-    #         # Save the cache
-    #         joblib.dump(historic_avarages_cache, historic_avarages_cache_path)
-    #         joblib.dump(historic_avarages_cache_clp, historic_avarages_cache_clp_path)
-    #         # Tell the user that the historic averages are saved in the cache
-    #         st.info('Historic Averages Saved in Cache')
-    #         st.write(f'Cache Path: {historic_avarages_cache_path}')
-    #         st.write(f'Cache CLP Path: {historic_avarages_cache_clp_path}')
-
-
-    #     # Display the historic averages in nice plotly plot
-    #     fig = make_subplots(specs=[[{"secondary_y": True}]])
-
-    #     # Add the historic averages to the plot
-    #     fig.add_trace(
-    #         go.Scatter(x=historic_avarages_dates, y=historic_avarages, name=f'{metric} Historic Averages'),
-    #         secondary_y=False,
-    #     )
-
-    #     # Add the cloud cover to the plot
-    #     fig.add_trace(
-    #         go.Scatter(x=historic_avarages_dates, y=historic_avarages_clp, name='Cloud Cover'),
-    #         secondary_y=True,
-    #     )
-
-    #     # Set the title and axis labels
-    #     fig.update_layout(title_text=f'{metric} Historic Averages for {field_name} (Field ID: {field_name}) in {year}')
-    #     fig.update_xaxes(title_text='Date')
-    #     fig.update_yaxes(title_text=f'{metric} Historic Averages', secondary_y=False)
-    #     fig.update_yaxes(title_text='Cloud Cover', secondary_y=True)
-
-    #     # Display the plot
-    #     st.plotly_chart(fig)            
-        
-
-    # st.markdown('---')
-    # st.header('Show Historic GIF')
-
-
-    # #Let the user select the year, start date and end date of the GIF
-    # with st.expander('Select Year, Start Date and End Date of the GIF'):
-    #     # Get the year
-    #     years = [f'20{i}' for i in range(16, 23)]
-    #     year = st.selectbox('Select Year: ', years, index=len(years)-2, key=f'Select Year Dropdown Menu - {metric}- Historic Averages GIF')
-        
-    #     # Set the start and end dates to the first and last dates of the year
-    #     start_date = f'{year}-01-01'
-    #     end_date = f'{year}-12-31'
-
-    # # Get the dates for historic GIF
-    # historic_avarages_dates_for_field = get_and_cache_available_dates(src_df, field_name, year, start_date, end_date)
-
-    # # Convert the dates to datetime objects and sort them ascendingly then convert them back to strings
-    # historic_avarages_dates_for_field = [datetime.strptime(date, '%Y-%m-%d') for date in historic_avarages_dates_for_field]
-    # historic_avarages_dates_for_field.sort()
-    # historic_avarages_dates_for_field = [datetime.strftime(date, '%Y-%m-%d') for date in historic_avarages_dates_for_field]
-
-    # # Get the number of dates
-    # num_historic_dates = len(historic_avarages_dates_for_field)
-    # st.write(f' Found {num_historic_dates} dates for field {field_name} in {year} (from {start_date} to {end_date})')
-
-    # # Display the historic GIF when the user clicks the button
-    # display_historic_GIF_button = st.button(f'Display Historic GIF  for Field {field_name} (Field ID: {field_name}) in {year} (from {start_date} to {end_date})',
-    #                                             key=f'Display Historic GIF Button - {metric}',
-    #                                             help='Click to display the historic GIF for the selected field',
-    #                                             use_container_width=True, type='primary')
-    
-    # # If the button is clicked, display the historic GIF
-    # if display_historic_GIF_button:
-
-    #     #Initlize the historic GIF imgs and dates
-    #     st.info('Generating Historic GIF...')
-    #     historic_imgs = []
-    #     historic_imgs_dates = []
-
-    #     # Gen the historic GIF
-    #     dates_for_field_bar = st.progress(0)
-    #     with st.spinner('Generating Historic GIF...'):
-    #         with st.empty():
-    #             for i in range(num_historic_dates):
-    #                 current_date = historic_avarages_dates_for_field[i]
-    #                 current_df = get_cuarted_df_for_field(src_df, field_name, current_date, metric, client_name)
-    #                 historic_imgs.append(current_df)
-    #                 historic_imgs_dates.append(current_date)
-    #                 dates_for_field_bar.progress((i + 1)/(num_historic_dates))
-
-    #                 # Create a fig of the historic Img 
-    #                 fig, ax = plt.subplots(figsize=(10, 5))
-
-    #                 # Get the current img
-    #                 current_df_lat_lon = utils.add_lat_lon_to_gdf_from_geometry(current_df)
-    #                 current_img = utils.gdf_column_to_one_band_array(current_df_lat_lon, f'{metric}_{current_date}')
-
-    #                 # Plot the historic Img
-    #                 title = f'{metric} for selected field {field_name} (Field ID: {field_name}) in {current_date}'
-    #                 ax.imshow(current_img)
-    #                 ax.set_title(title)
-
-    #                 # Display the plot
-    #                 st.pyplot(fig)
-
-    #     # Create the historic GIF
-    #     historic_GIF_name = f'{metric}_{field_name}_{year}.gif'
-    #     st.write('Creating Historic GIF...', historic_GIF_name)
-       
+           
 
 def monitor_fields():
     current_user = greeting("Let's take a look how these fields are doing")
@@ -526,13 +237,7 @@ def monitor_fields():
     else:
         st.info("No Fields Added Yet!")
         return
-    # st.info("Hover over the field to show the properties or check the Existing Fields List below")
-    # fields_map = gdf.explore()
-    # sat_basemap = utils.basemaps['Google Satellite']
-    # sat_basemap.add_to(fields_map)
-    # folium.LayerControl().add_to(fields_map)
-    # # output = st_folium(fields_map, key="edit_map", height=300, width=600)
-    # folium_static(fields_map, height=300, width=600)
+
     
     with st.expander("Existing Fields List", expanded=False):
         st.write(gdf)

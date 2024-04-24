@@ -5,10 +5,9 @@ import geopandas as gpd
 from streamlit_folium import st_folium, folium_static
 from authentication import greeting, check_password
 import folium
+import json
 import time
-def check_authentication():
-    if not check_password():
-        st.stop()
+import pandas as pd
 
 
 def add_properties(df, col_name, value, field_name):
@@ -37,17 +36,24 @@ def read_custom_property():
     return custom_property_name, custom_property_value
 
 
-
-
-
 def edit_fields():
-    current_user = greeting("Changed your mind? Edit , Add or Delete Fields easily")
-    file_path = f"fields_{current_user}.parquet"
-    if os.path.exists(file_path):
-        gdf = gpd.read_parquet(file_path)
+    current_user = greeting("Manage your fields")
+    fields_file_path = f"fields_{current_user}.parquet"
+    history_file_path = f"history_{current_user}.csv"
+    
+    # Load or initialize the GeoDataFrame for fields
+    if os.path.exists(fields_file_path):
+        gdf = gpd.read_parquet(fields_file_path)
     else:
-        st.info("No Fields Added Yet!")
+        st.info("No fields added yet!")
         return
+    
+    # Load or initialize the DataFrame for field usage history
+    if os.path.exists(history_file_path):
+        history_df = pd.read_csv(history_file_path)
+    else:
+        history_df = pd.DataFrame(columns=['field_name', 'start_date', 'end_date', 'crop', 'irrigation_method'])
+
     st.info("Hover over the field to show the properties or check the Existing Fields List below")
     fields_map = gdf.explore()
     sat_basemap = utils.basemaps['Google Satellite']
@@ -56,32 +62,27 @@ def edit_fields():
     folium_static(fields_map, height=300, width=600)
     
     with st.expander("Existing Fields List", expanded=False):
+        # lis = [(f"Name:{gdf.iloc[i]['name']}",f"location: {gdf.iloc[i]['geometry']}" )for i in range(len(gdf))]
         st.write(gdf)
 
     field_name = select_field(gdf)
     if field_name == "Select Field":
         st.info("No Field Selected Yet!")
-    
     else:
-        delete_edit = st.radio("Delete or Edit Field?", options=["View", "Edit", "Delete"], key="delete_edit", help="Select the operation to perform")
-        if delete_edit == "View":
+        st.subheader(field_name)
+        option_menu = st.radio(f"Please add your {field_name} field information, historical data will help train our AI model", options=["View Field Info", "Add Field Information","Add Field Cultivation History", "Delete"], key="option_menu", help="Select the operation to perform")
+        if option_menu == "View Field Info":
             field = gdf[gdf['name'] == field_name]
             st.write(field)
-        elif delete_edit == "Delete":
-            delete = st.button("Delete Field", key="delete", help="Click to Delete Field", type="primary", use_container_width=True)
-            if delete:
-                if len(gdf) == 1 and (gdf['name'] == field_name).all():  # Check if this is the only field left
-                    os.remove(file_path)  # Delete the .parquet file if it's the last field
-                    st.success("All fields deleted. The data file has been removed.")
-                    time.sleep(0.3)
-                    st.rerun()
-                else:
-                    gdf = gdf[gdf['name'] != field_name]
-                    gdf.to_parquet(file_path)
-                    st.success("Field Deleted Successfully!")
-                    time.sleep(0.3)
-                    st.rerun()
-        else:
+            # Deserialize the usage history for display
+            if len(history_df)>0:
+                st.write("Previous cultivation History:", history_df)
+            else:
+                st.subheader("No cultivation history added for this field.")
+
+        elif option_menu == "Add Field Information":
+         
+
             no_input = True
             crop_type = read_crop_type()
             irrigation_type = read_irrigation_type()
@@ -103,8 +104,64 @@ def edit_fields():
                 st.success("Field Information Updated Successfully!")
                 st.info("Please Select View above to see the updated field information")
 
+        elif option_menu == "Add Field Cultivation History":
+            with st.form(key='history_form', clear_on_submit=True):
+                start_date = st.date_input("Cultivation Start Date", key=f'start_date')
+                end_date = st.date_input("Cultivation End Date", key=f'end_date')
+                crop_planted = st.selectbox("Type of Crop Planted", [' ', 'Wheat', 'Corn', 'Rice',"other"], index=0)
+               
+                irrigation_method = st.selectbox("Irrigation Method Used", ['Rainfed', 'Irrigated', " "], index=2)
+                submit_history = st.form_submit_button("Submit Crop Cycle")
+                if submit_history:
+                    # Check that the start date is before the end date
+                    if start_date < end_date:
+                        # Append new usage entry
+                        new_history = {
+                            'field_name': field_name,
+                            'start_date': str(start_date),
+                            'end_date': str(end_date),
+                            'crop': crop_planted,
+                            'irrigation_method': irrigation_method
+                        }
+                        # Use concat instead of append
+                        history_df = pd.concat([history_df, pd.DataFrame([new_history])], ignore_index=True)
+                        history_df.to_csv(history_file_path, index=False)
+                        st.success("Field usage history updated successfully!, fill the form again to add another cultivation history" )
+
+                    else:
+                        st.write("check the entered dates")
+
+        elif option_menu == "Delete":
+            option = st.selectbox("What do you want to delete", options=[f'Delete {field_name} Field', 'Delete a historical entry from the field'])
+        
+            if option == f"Delete {field_name} Field" :
+                delete = st.button("Delete Entire Field", key="delete_field", help="Click to Delete Field", type="primary", use_container_width=True)
+                if delete:
+                    if len(gdf) == 1 and (gdf['name'] == field_name).all():  # Check if this is the only field left
+                        os.remove(fields_file_path)  # Delete the .parquet file if it's the last field
+                        os.remove(history_file_path)
+                        st.success("All fields deleted. The data file has been removed.")
+                        time.sleep(0.3)
+                        st.rerun()
+                    else:
+                        gdf = gdf[gdf['name'] != field_name]
+                        history_df = history_df[history_df["field_name"] != field_name ]
+                        gdf.to_parquet(fields_file_path)
+                        history_df.to_csv(history_file_path, index=False)
+                        st.success("Field Deleted Successfully!")
+                        time.sleep(0.3)
+                        st.rerun()
+            elif option == "Delete a historical entry from the field":
+            # Allow the user to select which historical entry to delete
+                idx_history_to_delete = st.selectbox("Select a history to delete, select the index of the entry that you want to delete", options=history_df[history_df['field_name'] == field_name].index)
+                if st.button("Confirm Delete Historical Entry", key="delete_history", help="Click to Delete Entry", type="primary", use_container_width=True):
+                    history_df.drop(labels=0, axis=0, index=None, columns=None, level=None, inplace=True, errors='raise')
+                    history_df.to_csv(history_file_path, index=False)
+
+                    st.success("Entry Deleted Successfully!")
+                    time.sleep(0.3)
+                    st.rerun()
 
 if __name__ == '__main__':
-    check_authentication()
 
     edit_fields()

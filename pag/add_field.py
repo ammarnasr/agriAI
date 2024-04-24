@@ -54,7 +54,7 @@ def display_map_and_drawing_controls(m, center_start):
     zoom_start = 13
     if st.session_state['active_drawing'] is None:
         st.info("IMPORTANT: Click on the drawing to confirm the drawn field", icon="🚨")
-        sat_basemap = utils.basemaps['Google Satellite']
+        sat_basemap = utils.basemaps['Google Satellite Hybrid']  # Change this line to use 'Google Satellite Hybrid'
         sat_basemap.add_to(m)
         folium.LayerControl().add_to(m)
         output = st_folium(m, center=center_start, zoom=zoom_start, key="new", width=800)
