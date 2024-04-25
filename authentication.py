@@ -6,11 +6,29 @@ import time
 import re
 import hashlib
 import hmac
+import os
+import shutil
+
+def get_size(start_path = '.'):
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(start_path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            # skip if it is symbolic link
+            if not os.path.islink(fp):
+                total_size += os.path.getsize(fp)
+    ds = total_size/10**6
+    total, used, free = shutil.disk_usage("/")
+    total = total/ (2**30)
+    free = free/ (2**30)
+    st.write(f'Your Data size is {ds :.2f}MB; Space left {free :.2f}GB out of {total :.2f}GB')
+    return ds
 
 
 def greeting(msg="Welcome"):
     current_user = st.session_state['current_user']
     st.write(f"{msg} {current_user}!")
+    get_size(start_path=f'./{current_user}')
     return current_user
 
 
