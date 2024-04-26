@@ -25,6 +25,7 @@ def authenticate_user():
 
     return False
 
+
 def main():
     
     if "authenticated" not in st.session_state:
@@ -41,10 +42,10 @@ def main():
             add_field.add_drawing()
             
         elif options == "Manage Fields":
-            st.title("Welcome to :orange[Field Monitoring App]")
+            st.title(":orange[Field Management]")
             edit.edit_fields()
         elif options == "Monitor Fields":
-            st.title("Welcome to :orange[Field Monitoring App]")
+            st.title(":orange[Field Monitoring]")
             monitor.monitor_fields()
     else:
         authenticate_user()
