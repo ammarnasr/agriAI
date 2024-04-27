@@ -83,18 +83,6 @@ def get_cuarted_df_for_field(df, field, date, metric, clientName):
     return curated_df
 
 
-def get_cuarted_df_for_field(df, field, date, metric, clientName):
-    curated_date_path =  utils.get_curated_location_img_path(clientName, metric, date, field)
-    if curated_date_path is not None:
-        curated_df = gpd.read_file(curated_date_path)
-    else:
-        process.Download_image_in_given_date(clientName, metric, df, field, date)
-        process.mask_downladed_image(clientName, metric, df, field, date)
-        process.convert_maske_image_to_geodataframe(clientName, metric, df, field, date, df.crs)
-        curated_date_path =  utils.get_curated_location_img_path(clientName, metric, date, field)
-        curated_df = gpd.read_file(curated_date_path)
-    return curated_df
-
 def track(metric, field_name, src_df, client_name):
 
     dates = []
@@ -174,21 +162,39 @@ def track(metric, field_name, src_df, client_name):
         cmap = 'RdYlGn'
 
         # Create a map of the field data
-        field_data_map  = field_data.explore(
-            column=f'{metric}_{date}',
-            cmap=cmap,
-            legend=True,
-            vmin=0,
-            vmax=1,
-            marker_type='circle', marker_kwds={'radius':5.3, 'fill':True})
+        # field_data_map  = field_data.explore(
+        #     column=f'{metric}_{date}',
+        #     cmap=cmap,
+        #     legend=True,
+        #     vmin=0,
+        #     vmax=1,
+        #     marker_type='circle', marker_kwds={'radius':5.3, 'fill':True})
         
         # Add Google Satellite as a base map
-        google_map = utils.basemaps['Google Satellite']
-        google_map.add_to(field_data_map)
+        # google_map = utils.basemaps['Google Satellite']
+        # google_map.add_to(field_data_map)
 
-        # Display the map
-        st_folium(field_data_map, width = 725, key=f'Field Data Map - {metric}')
+        # # Display the map
+        # st_folium(field_data_map, width = 725, key=f'Field Data Map - {metric}')
+        df = field_data.copy()
+        df['latitude'] = df['geometry'].y
+        df['longitude'] = df['geometry'].x
 
+        # Create a scatter plot
+        fig = px.scatter_mapbox(
+            df, 
+            lat='latitude', 
+            lon='longitude', 
+            color=f'{metric}_{date}',
+            color_continuous_scale='RdYlGn',
+            range_color=(0, 1),
+            size_max=15,
+            zoom=13,
+        )
+
+        # Add the base map
+        fig.update_layout(mapbox_style="open-street-map")
+        st.plotly_chart(fig)
 
         #Dwonload Links
 
