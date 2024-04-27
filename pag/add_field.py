@@ -8,9 +8,8 @@ from folium.plugins import Draw
 from shapely.geometry import Polygon
 from streamlit_folium import st_folium
 from authentication import greeting, check_password
-# import shapely.ops as ops
 from functools import partial
-# import pyproj
+import geopy
 from pyproj import  Transformer
 from shapely.ops import transform
 from geopy.geocoders import Nominatim
@@ -60,12 +59,9 @@ def add_existing_fields_to_map(field_map, current_user):
 def get_center_of_existing_fields(current_user):
     location_name = st.text_input('Enter a location to search:')
     if location_name:
-        lat, lon = get_location_coordinates(location_name)
+        geolocator = Nominatim(user_agent="geoapiExercises")
+        lat, lon = get_location_coordinates(location_name,geolocator)
         if lat is not None and lon is not None:
-            # Update your map to center on the search result and adjust zoom as desired
-            m = folium.Map(location=[lat, lon], zoom_start=13)
-            # Add the map to the Streamlit app
-            # st_data = folium_static(m)
             return [lat, lon]
         else:
             st.error('Location not found. Please try again.')
