@@ -24,9 +24,8 @@ def check_authentication():
 
 
 # Function to get coordinates from a location name
-def get_location_coordinates(location_name):
-    geolocator = Nominatim(user_agent="geoapiExercises")
-
+def get_location_coordinates(location_name,geolocator):
+    geopy.geocoders.options.default_user_agent = "my-application"
     try:
         location = geolocator.geocode(location_name)
         if location:
