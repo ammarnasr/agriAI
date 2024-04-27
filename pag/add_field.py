@@ -25,7 +25,6 @@ def check_authentication():
 
 # Function to get coordinates from a location name
 def get_location_coordinates(location_name,geolocator):
-    geopy.geocoders.options.default_user_agent = "my-application"
     try:
         location = geolocator.geocode(location_name)
         if location:
@@ -58,7 +57,9 @@ def add_existing_fields_to_map(field_map, current_user):
 def get_center_of_existing_fields(current_user):
     location_name = st.text_input('Enter a location to search:')
     if location_name:
-        geolocator = Nominatim(user_agent="geoapiExercises")
+        geolocator = Nominatim(user_agent=current_user)
+        geopy.geocoders.options.default_user_agent = current_user
+
         lat, lon = get_location_coordinates(location_name,geolocator)
         if lat is not None and lon is not None:
             return [lat, lon]
