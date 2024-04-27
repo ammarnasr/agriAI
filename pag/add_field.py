@@ -181,13 +181,12 @@ def check_polygon_area_within_range(active_drawing, min_area_km2=1, max_area_km2
     area_km2 = transformed_geom.area / 10**6
 
     if area_km2 < min_area_km2:
-        st.warning(f"Field area {area_km2} is less than {min_area_km2} km2. Please draw again!")
+        st.warning(f"Field area {round(area_km2, 2)} is less than {min_area_km2} km². Please draw again!")
         return False
     if area_km2 > max_area_km2:
-        st.warning(f"Field area {area_km2} is more than {max_area_km2} km2. Please draw again!")
+        st.warning(f"Field area {round(area_km2, 2)} is more than {max_area_km2} km². Please draw again!")
         return False
-    st.success(f"Field area is {area_km2} km2, now give it a unique name {st.session_state['current_user']} !")
-
+    st.success(f"Field area is {round(area_km2, 2)} km², now give it a unique name {st.session_state['current_user']}!")
     return True
 
 
