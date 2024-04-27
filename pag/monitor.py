@@ -196,7 +196,8 @@ def track(metric, field_name, src_df, client_name):
         )
 
         # Add the base map
-        fig.update_layout(mapbox_style="open-street-map")
+        token = open("token.mapbox_token").read()
+        fig.update_layout(mapbox_style="satellite", mapbox_accesstoken=token)
         st.plotly_chart(fig)
 
         #Dwonload Links
