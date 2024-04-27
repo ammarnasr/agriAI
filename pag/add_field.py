@@ -15,6 +15,8 @@ from pyproj import  Transformer
 from shapely.ops import transform
 from geopy.geocoders import Nominatim
 from streamlit_folium import folium_static
+from shapely.ops import transform
+from geopy.geocoders import Nominatim
 
 def check_authentication():
     if not check_password():
@@ -186,9 +188,9 @@ def check_polygon_area_within_range(active_drawing, min_area_km2=1, max_area_km2
         st.warning(f"Field area {area_km2} is less than {min_area_km2} km2. Please draw again!")
         return False
     if area_km2 > max_area_km2:
-        st.warning(f"Field area {TRUNC(area_km2,3)} is more than {max_area_km2} km2. Please draw again!")
+        st.warning(f"Field area {area_km2} is more than {max_area_km2} km2. Please draw again!")
         return False
-    st.success(f"Field area is {TRUNC(area_km2,3} km2, now give it a unique name {st.session_state['current_user']} !")
+    st.success(f"Field area is {area_km2} km2, now give it a unique name {st.session_state['current_user']} !")
 
     return True
 
