@@ -144,8 +144,8 @@ def edit_fields():
                 if delete:
                     if len(gdf) == 1 and (gdf['name'] == field_name).all():  # Check if this is the only field left
                         os.remove(fields_file_path)  # Delete the .parquet file if it's the last field
-                         if os.path.exists(history_file_path):
-                             os.remove(history_file_path)
+                        if os.path.exists(history_file_path):
+                            os.remove(history_file_path)
                         st.success("All fields deleted. The data file has been removed.")
                         time.sleep(0.3)
                         st.rerun()
