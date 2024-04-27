@@ -8,9 +8,13 @@ from folium.plugins import Draw
 from shapely.geometry import Polygon
 from streamlit_folium import st_folium
 from authentication import greeting, check_password
-import shapely.ops as ops
+# import shapely.ops as ops
 from functools import partial
-import pyproj
+# import pyproj
+from pyproj import  Transformer
+from shapely.ops import transform
+from geopy.geocoders import Nominatim
+from streamlit_folium import folium_static
 
 def check_authentication():
     if not check_password():
@@ -18,7 +22,18 @@ def check_authentication():
 
 
 
+# Function to get coordinates from a location name
+def get_location_coordinates(location_name):
+    geolocator = Nominatim(user_agent="geoapiExercises")
 
+    try:
+        location = geolocator.geocode(location_name)
+        if location:
+            return location.latitude, location.longitude
+        else:
+            return None, None
+    except:
+        return None, None
 
 def display_existing_fields(current_user):
     with st.expander("Existing Fields", expanded=False):
@@ -30,17 +45,28 @@ def display_existing_fields(current_user):
         else:
             st.info("No Fields Added Yet!")
 
-def add_existing_fields_to_map(m, current_user):
+def add_existing_fields_to_map(field_map, current_user):
     if os.path.exists(f"fields_{current_user}.parquet"):
-        fg = folium.FeatureGroup(name="Existing Fields", control=True).add_to(m)
+        fg = folium.FeatureGroup(name="Existing Fields", control=True).add_to(field_map)
         gdf = gpd.read_parquet(f"fields_{current_user}.parquet")
         for i, row in gdf.iterrows():
             edges = row['geometry'].exterior.coords.xy
             edges = [[i[1], i[0]] for i in zip(*edges)]
             folium.Polygon(edges, color='blue', fill=True, fill_color='blue', fill_opacity=0.6).add_to(fg)
-    return m
+    return field_map
 
 def get_center_of_existing_fields(current_user):
+    location_name = st.text_input('Enter a location to search:')
+    if location_name:
+        lat, lon = get_location_coordinates(location_name)
+        if lat is not None and lon is not None:
+            # Update your map to center on the search result and adjust zoom as desired
+            m = folium.Map(location=[lat, lon], zoom_start=13)
+            # Add the map to the Streamlit app
+            # st_data = folium_static(m)
+            return [lat, lon]
+        else:
+            st.error('Location not found. Please try again.')
     if os.path.exists(f"fields_{current_user}.parquet"):
         gdf = gpd.read_parquet(f"fields_{current_user}.parquet")
         edges = gdf['geometry'][0].exterior.coords.xy
@@ -50,14 +76,14 @@ def get_center_of_existing_fields(current_user):
         return edges_center
     return [15.572363674301132, 32.69167103104079]
 
-def display_map_and_drawing_controls(m, center_start):
+def display_map_and_drawing_controls(field_map, center_start):
     zoom_start = 13
     if st.session_state['active_drawing'] is None:
         st.info("IMPORTANT: Click on the drawing to confirm the drawn field", icon="🚨")
         sat_basemap = utils.basemaps['Google Satellite Hybrid']  # Change this line to use 'Google Satellite Hybrid'
-        sat_basemap.add_to(m)
-        folium.LayerControl().add_to(m)
-        output = st_folium(m, center=center_start, zoom=zoom_start, key="new", width=800)
+        sat_basemap.add_to(field_map)
+        folium.LayerControl().add_to(field_map)
+        output = st_folium(field_map, center=center_start, zoom=zoom_start, key="new", width=800)
         active_drawing = output['last_active_drawing']
         st.session_state['active_drawing'] = active_drawing
         return False
@@ -136,9 +162,9 @@ def check_intersection_with_existing_fields(active_drawing, current_user):
         if geom1.overlaps(geom2).any():
             st.warning("Field intersects with existing fields. Please draw again!")
             with st.expander("Intersecting Fields", expanded=False):
-                m = geom1.explore(name= "New Field", color="red")
-                m = gdf.explore(m=m, name="Existing Fields", color="blue")
-                st_folium(m)
+                field_map = geom1.explore(name= "New Field", color="red")
+                field_map = gdf.explore(m=field_map, name="Existing Fields", color="blue")
+                st_folium(field_map)
             return True
     return False
 
@@ -147,21 +173,23 @@ def check_intersection_with_existing_fields(active_drawing, current_user):
 def check_polygon_area_within_range(active_drawing, min_area_km2=1, max_area_km2=10):
     if active_drawing is None:
         return
+    transformer = Transformer.from_crs("EPSG:4326", "EPSG:6933", always_xy=True)
+
     edges = [[i[0], i[1]] for i in active_drawing['geometry']['coordinates'][0]]
     geom = Polygon(edges)
-    geom_area = ops.transform(
-    partial(
-        pyproj.transform,
-        pyproj.Proj(init='EPSG:4326'),
-        pyproj.Proj(proj='aea',lat_1=geom.bounds[1], lat_2=geom.bounds[3]))
-        , geom)
-    geom_area = geom_area.area / 10**6
-    if geom_area < min_area_km2:
-        st.warning(f"Field area is less than {min_area_km2} km2. Please draw again!")
+    transformed_geom = transform(transformer.transform, geom)
+
+
+    area_km2 = transformed_geom.area / 10**6
+
+    if area_km2 < min_area_km2:
+        st.warning(f"Field area {area_km2} is less than {min_area_km2} km2. Please draw again!")
         return False
-    if geom_area > max_area_km2:
-        st.warning(f"Field area is more than {max_area_km2} km2. Please draw again!")
+    if area_km2 > max_area_km2:
+        st.warning(f"Field area {TRUNC(area_km2,3)} is more than {max_area_km2} km2. Please draw again!")
         return False
+    st.success(f"Field area is {TRUNC(area_km2,3} km2, now give it a unique name {st.session_state['current_user']} !")
+
     return True
 
 
@@ -170,18 +198,18 @@ def add_drawing():
     current_user = greeting("Drag and Zoom and draw your fields on the map, make sure to name them uniquely")
     current_user = st.session_state['current_user']
     display_existing_fields(current_user)
-
     center_start = get_center_of_existing_fields(current_user)
     zoom_start = 13
-    m = folium.Map(location=center_start, zoom_start=zoom_start)
+    field_map = folium.Map(location=center_start, zoom_start=zoom_start)
+
 
     draw_options = {'polyline': False, 'polygon': True, 'rectangle': True, 'circle': False, 'marker': False, 'circlemarker': False}
-    Draw(export=True, draw_options=draw_options).add_to(m)
-    m = add_existing_fields_to_map(m, current_user)
+    Draw(export=True, draw_options=draw_options).add_to(field_map)
+    field_map = add_existing_fields_to_map(field_map, current_user)
 
 
 
-    captured = display_map_and_drawing_controls(m, center_start)
+    captured = display_map_and_drawing_controls(field_map, center_start)
     if captured:
         intersects = check_intersection_with_existing_fields(st.session_state['active_drawing'], current_user)
         within_area = check_polygon_area_within_range(st.session_state['active_drawing'])
