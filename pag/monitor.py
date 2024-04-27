@@ -15,6 +15,9 @@ from zipfile import ZipFile
 import matplotlib.pyplot as plt
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import pydeck as pdk
+import pandas as pd
+import plotly.express as px
 
 def check_authentication():
     if not check_password():
