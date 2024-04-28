@@ -6,9 +6,9 @@ from sentinelhub import  SHConfig, MimeType
 
 
 config = SHConfig()
-config.instance_id       = '6c220beb-90c4-4131-b658-10cddd8d97b9'
-config.sh_client_id      = '17e7c154-7f2d-4139-b1af-cef762385079'
-config.sh_client_secret  = 'KvbQMKZB85ZWEgWuxqiWIVEvTAQEfoF9'
+config.instance_id       = '20996045-deec-4830-85dc-ad539df944eb'
+config.sh_client_id      = 'bb286d9b-6ca5-4737-bd7c-8b19b63bd182'
+config.sh_client_secret  = 'LEyvAXIGIsHh6iFZaZ1u4uCmpYgcyWwf'
 
 def Download_image_in_given_date(clientName, metric, df, field, date, mime_type = MimeType.TIFF):
     sen_obj = SenHub(config, mime_type = mime_type)
