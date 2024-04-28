@@ -114,7 +114,7 @@ def track(metric, field_name, src_df, client_name):
             """, unsafe_allow_html=True)
         date = st.selectbox('Select Observation Date: ', dates, index=len(dates)-1, key=f'Select Date Dropdown Menu - {metric}')
         if date != -1:
-            st.write('You selected:', date)
+            st.success(f'You selected: {date}')
             #Add the date to the session state
             st.session_state['date'] = date
         else:
