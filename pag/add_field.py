@@ -81,7 +81,7 @@ def display_map_and_drawing_controls(field_map, center_start):
         sat_basemap.add_to(field_map)
         folium.plugins.Geocoder().add_to(field_map)
         folium.LayerControl().add_to(field_map)
-        output = st_folium(field_map, center=center_start, zoom=zoom_start, key="new", width=800)
+        output = st_folium(field_map, center=center_start, zoom=zoom_start, key="new", width=900)
         active_drawing = output['last_active_drawing']
         st.session_state['active_drawing'] = active_drawing
         return False
@@ -95,7 +95,7 @@ def display_map_and_drawing_controls(field_map, center_start):
         sat_basemap = utils.basemaps['Google Satellite']
         sat_basemap.add_to(new_map)
         folium.LayerControl().add_to(new_map)
-        st_folium(new_map, center=edges_center, zoom=zoom_start, key="drawn", width=800)
+        st_folium(new_map, center=edges_center, zoom=zoom_start, key="drawn", width=900)
         return True
 
 def handle_user_actions(active_drawing, current_user, intersects, within_area):
