@@ -2,9 +2,10 @@ import streamlit as st
 def main():
     st.header(":mailbox: Get In Touch With Us!")
 
+    # <form action="https://formsubmit.co/asim.awad98@gmail.com" method="POST">
 
     contact_form = """
-    <form action="https://formsubmit.co/asim.awad98@gmail.com" method="POST">
+    <form action="https://formsubmit.co/a31c8ec03a03a670e12e2b158e8e912e" method="POST">
         <input type="hidden" name="_captcha" value="false">
         <input type="text" name="name" placeholder="Your name" required>
         <input type="email" name="email" placeholder="Your email" required>
