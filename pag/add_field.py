@@ -1,3 +1,4 @@
+# add_field.py
 import utils
 import os
 import folium
@@ -8,12 +9,10 @@ from folium.plugins import Draw
 from shapely.geometry import Polygon
 from streamlit_folium import st_folium
 from authentication import greeting, check_password
-from functools import partial
 import geopy
 from pyproj import  Transformer
 from shapely.ops import transform
 from geopy.geocoders import Nominatim
-from streamlit_folium import folium_static
 from shapely.ops import transform
 from geopy.geocoders import Nominatim
 
@@ -38,7 +37,7 @@ def display_existing_fields(current_user):
     with st.expander("Existing Fields", expanded=False):
         if os.path.exists(f"fields_{current_user}.parquet"):
             gdf = gpd.read_parquet(f"fields_{current_user}.parquet")
-            st.write(gdf)
+            st.table(gdf.name.tolist())
             mm = gdf.explore()
             st_folium(mm)
         else:
@@ -80,6 +79,7 @@ def display_map_and_drawing_controls(field_map, center_start):
         st.info("IMPORTANT: Click on the drawing to confirm the drawn field", icon="🚨")
         sat_basemap = utils.basemaps['Google Satellite Hybrid']  # Change this line to use 'Google Satellite Hybrid'
         sat_basemap.add_to(field_map)
+        folium.plugins.Geocoder().add_to(field_map)
         folium.LayerControl().add_to(field_map)
         output = st_folium(field_map, center=center_start, zoom=zoom_start, key="new", width=800)
         active_drawing = output['last_active_drawing']

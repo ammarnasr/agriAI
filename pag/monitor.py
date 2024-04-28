@@ -1,22 +1,15 @@
+# monitor.py
 import os
 import utils
 import streamlit as st
 import geopandas as gpd
-from streamlit_folium import st_folium, folium_static
 from authentication import greeting, check_password
-import folium
 from senHub import SenHub
 from datetime import datetime
-from sentinelhub import  SHConfig, MimeType
+from sentinelhub import  SHConfig
 import requests
 import process
-import joblib
 from zipfile import ZipFile
-import matplotlib.pyplot as plt
-from plotly.subplots import make_subplots
-import plotly.graph_objects as go
-import pydeck as pdk
-import pandas as pd
 import plotly.express as px
 
 def check_authentication():
@@ -87,7 +80,7 @@ def get_cuarted_df_for_field(df, field, date, metric, clientName):
 
 
 def track(metric, field_name, src_df, client_name):
-
+    st.title(":green[Select Date and Start Monitoring]")
     dates = []
     date = -1
     if 'dates' not in st.session_state:
@@ -147,38 +140,22 @@ def track(metric, field_name, src_df, client_name):
             field_data = metric_data.merge(cloud_cover_data, on='geometry')
 
         # Display the field data
-        st.write(f'Field Data for {field_name} (Field ID: {field_name}) on {date}')
-        st.write(field_data.head(2))
+        avg_clp = field_data[f'CLP_{date}'].mean() *100
+        avg_metric = field_data[f'{metric}_{date}'].mean() 
+        st.write(f'Field Data for (Field ID: {field_name}) on {date}')
+        col1,col3,col5,col2,col4 = st.columns(5)
+        col1.metric(f":orange[Average {metric}]", value=f"{avg_metric :.2f}")
+        col2.metric(":green[Cloud Cover]",  value=f"{avg_clp :.2f}%")
 
         #Get Avarage Cloud Cover
-        avg_clp = field_data[f'CLP_{date}'].mean() *100
 
         # If the avarage cloud cover is greater than 80%, display a warning message
         if avg_clp > 80:
             st.warning(f'⚠️ The Avarage Cloud Cover is {avg_clp}%')
             st.info('Please Select A Different Date')
 
-        ## Generate the field data Map ##
+  
 
-        #Title, Colormap and Legend
-        title = f'{metric} for selected field {field_name} (Field ID: {field_name}) in {date}'
-        cmap = 'RdYlGn'
-
-        # Create a map of the field data
-        # field_data_map  = field_data.explore(
-        #     column=f'{metric}_{date}',
-        #     cmap=cmap,
-        #     legend=True,
-        #     vmin=0,
-        #     vmax=1,
-        #     marker_type='circle', marker_kwds={'radius':5.3, 'fill':True})
-        
-        # Add Google Satellite as a base map
-        # google_map = utils.basemaps['Google Satellite']
-        # google_map.add_to(field_data_map)
-
-        # # Display the map
-        # st_folium(field_data_map, width = 725, key=f'Field Data Map - {metric}')
         df = field_data.copy()
         df['latitude'] = df['geometry'].y
         df['longitude'] = df['geometry'].x
@@ -191,6 +168,8 @@ def track(metric, field_name, src_df, client_name):
             color=f'{metric}_{date}',
             color_continuous_scale='RdYlGn',
             range_color=(0, 1),
+            width= 800,
+            height=600,
             size_max=15,
             zoom=13,
         )
@@ -251,32 +230,34 @@ def track(metric, field_name, src_df, client_name):
            
 
 def monitor_fields():
-    current_user = greeting("Let's take a look how these fields are doing")
-    if os.path.exists(f"fields_{current_user}.parquet"):
-        gdf = gpd.read_parquet(f"fields_{current_user}.parquet")
-    else:
-        st.info("No Fields Added Yet!")
-        return
+    row1,row2 = st.columns([1,2])
+    with row1:
+        st.title(":orange[Field Monitoring]")
 
-    
-    with st.expander("Existing Fields List", expanded=False):
-        st.write(gdf)
+        current_user = greeting("Let's take a look how these fields are doing")
+        if os.path.exists(f"fields_{current_user}.parquet"):
+            gdf = gpd.read_parquet(f"fields_{current_user}.parquet")
+            field_name = select_field(gdf)
+            if field_name == "Select Field":
+                st.info("No Field Selected Yet!")  
+            else:
+                metric = st.radio("Select Metric to Monitor", ["NDVI", "LAI", "CAB"], key="metric", index=0, help="Select the metric to monitor")
+                st.success(f"Monitoring {metric} for {field_name}")
+                with st.expander("Metrics Explanation", expanded=False):
+                    st.write("NDVI: Normalized Difference Vegetation Index, Mainly used to monitor the health of vegetation")
+                    st.write("LAI: Leaf Area Index, Mainly used to monitor the productivity of vegetation")
+                    st.write("CAB: Chlorophyll Absorption in the Blue band, Mainly used to monitor the chlorophyll content in vegetation")
+                    # st.write("NDMI: Normalized Difference Moisture Index, Mainly used to monitor the moisture content in vegetation")
+                st.info("More metrics and analysis features will be added soon")
+        else:
+            st.info("No Fields Added Yet!")
+            return
 
-    field_name = select_field(gdf)
-    if field_name == "Select Field":
-        st.info("No Field Selected Yet!")
-    
-    else:
-        with st.expander("Metrics Explanation", expanded=False):
-            st.write("NDVI: Normalized Difference Vegetation Index, Mainly used to monitor the health of vegetation")
-            st.write("LAI: Leaf Area Index, Mainly used to monitor the productivity of vegetation")
-            st.write("CAB: Chlorophyll Absorption in the Blue band, Mainly used to monitor the chlorophyll content in vegetation")
-            # st.write("NDMI: Normalized Difference Moisture Index, Mainly used to monitor the moisture content in vegetation")
-        st.success("More metrics and analysis features will be added soon")
-        metric = st.radio("Select Metric to Monitor", ["NDVI", "LAI", "CAB"], key="metric", index=0, help="Select the metric to monitor")
-        st.write(f"Monitoring {metric} for {field_name}")
+        
 
-        track(metric, field_name, gdf, current_user)
+        with row2:
+            if field_name != "Select Field":
+                track(metric, field_name, gdf, current_user)
 
         
 

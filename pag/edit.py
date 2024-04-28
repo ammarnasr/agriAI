@@ -1,14 +1,12 @@
+# edit.py
 import os
 import utils
 import streamlit as st
 import geopandas as gpd
-from streamlit_folium import st_folium, folium_static
-from authentication import greeting, check_password
+from streamlit_folium import folium_static
 import folium
-import json
 import time
 import pandas as pd
-
 
 def add_properties(df, col_name, value, field_name):
     if col_name not in df.columns:
@@ -41,8 +39,8 @@ def read_custom_property():
     return custom_property_name, custom_property_value
 
 
-def edit_fields():
-    current_user = greeting("Manage your fields")
+def edit_fields(current_user):
+    # current_user = greeting("Manage your fields")
     fields_file_path = f"fields_{current_user}.parquet"
     history_file_path = f"history_{current_user}.csv"
     
@@ -60,21 +58,21 @@ def edit_fields():
         history_df = pd.DataFrame(columns=['field_name', 'start_date', 'end_date', 'crop', 'irrigation_method'])
 
     st.info("Hover over the field to show the properties or check the Existing Fields List below")
-    fields_map = gdf.explore()
-    sat_basemap = utils.basemaps['Google Satellite']
-    sat_basemap.add_to(fields_map)
-    folium.LayerControl().add_to(fields_map)
-    folium_static(fields_map, height=300, width=600)
-    
-    with st.expander("Existing Fields List", expanded=False):
-        # lis = [(f"Name:{gdf.iloc[i]['name']}",f"location: {gdf.iloc[i]['geometry']}" )for i in range(len(gdf))]
-        st.write(gdf)
-
     field_name = select_field(gdf)
     if field_name == "Select Field":
+        fields_map = gdf.explore()
+        sat_basemap = utils.basemaps['Google Satellite']
+        sat_basemap.add_to(fields_map)
+        folium.LayerControl().add_to(fields_map)
+        folium_static(fields_map, height=300, width=400)
         st.info("No Field Selected Yet!")
     else:
-        st.subheader(field_name)
+        fields_map = gdf[gdf['name'] == field_name].explore()
+        sat_basemap = utils.basemaps['Google Satellite']
+        sat_basemap.add_to(fields_map)
+        folium.LayerControl().add_to(fields_map)
+        folium_static(fields_map, height=300, width=400)
+        st.subheader(f":green[{field_name}]")
         option_menu = st.radio(f"Please add your {field_name} field information, historical data will help train our AI model", options=["View Field Info", "Add Field Information","Add Field Cultivation History", "Delete"], key="option_menu", help="Select the operation to perform")
         if option_menu == "View Field Info":
             field = gdf[gdf['name'] == field_name]
@@ -105,7 +103,6 @@ def edit_fields():
                 if custom_property_name != "" and custom_property_value != "":
                     gdf = add_properties(gdf, custom_property_name, custom_property_value, field_name)
                 gdf.to_parquet(f"fields_{current_user}.parquet")
-                # st.rerun()
                 st.success("Field Information Updated Successfully!")
                 st.info("Please Select View above to see the updated field information")
 
